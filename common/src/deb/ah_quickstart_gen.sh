@@ -24,7 +24,6 @@ esac
 ahcert ~/ SecureTemperatureSensor
 ahcert ~/ client1
 ahcert_export authorization ~/
-chown $(logname) ~/*.crt ~/*.p12
 
 # Get public base64 cert for database!!!
 consumer64pub=$(\
