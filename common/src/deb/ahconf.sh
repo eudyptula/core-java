@@ -1,5 +1,7 @@
 #!/bin/sh
 
+AH_SYSTEMS_DIR="/etc/arrowhead/systems"
+
 db_get arrowhead-common/mysql_password; AH_PASS_DB=$RET
 db_get arrowhead-common/cert_password; AH_PASS_CERT=$RET
 db_get arrowhead-common/cloudname; AH_CLOUD_NAME=$RET
@@ -119,8 +121,8 @@ ah_db_own_cloud () {
 }
 
 ah_log4j_conf () {
-    if [ ! -f "/etc/arrowhead/${1}/log4j.properties" ]; then
-        /bin/cat <<EOF >/etc/arrowhead/${1}/log4j.properties
+    if [ ! -f "${AH_SYSTEMS_DIR}/${1}/log4j.properties" ]; then
+        /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${1}/log4j.properties
 # Define the root logger with appender file
 log4j.rootLogger=INFO, DB, FILE
 
@@ -156,8 +158,8 @@ log4j.appender.FILE.Append=false
 log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
 log4j.appender.FILE.layout.conversionPattern=%d{yyyy-MM-dd HH:mm:ss}, %C, %p, %m%n
 EOF
-        chown root:arrowhead /etc/arrowhead/${1}/log4j.properties
-        chmod 640 /etc/arrowhead/${1}/log4j.properties
+        chown root:arrowhead ${AH_SYSTEMS_DIR}/${1}/log4j.properties
+        chmod 640 ${AH_SYSTEMS_DIR}/${1}/log4j.properties
     fi
 }
 

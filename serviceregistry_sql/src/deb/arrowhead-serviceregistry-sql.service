@@ -3,7 +3,7 @@ Description=arrowhead-serviceregistry-sql
 After=network.target mysql.target
 
 [Service]
-WorkingDirectory=/etc/arrowhead/service-registry-sql
+WorkingDirectory=/etc/arrowhead/systems/service-registry-sql
 ExecStart=/usr/bin/java --add-modules java.xml.bind -jar /usr/share/arrowhead/systems/arrowhead-serviceregistry-sql-4.0.jar -d -daemon -tls
 ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/service-registry-sql.log; do sleep 2; done'
 TimeoutStopSec=5

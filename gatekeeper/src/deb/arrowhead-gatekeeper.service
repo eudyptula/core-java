@@ -4,7 +4,7 @@ After=network.target mysql.target arrowhead-serviceregistry-sql.service arrowhea
 Requires=arrowhead-serviceregistry-sql.service arrowhead-authorization.service arrowhead-gateway.service
 
 [Service]
-WorkingDirectory=/etc/arrowhead/gatekeeper
+WorkingDirectory=/etc/arrowhead/systems/gatekeeper
 ExecStart=/usr/bin/java --add-modules java.xml.bind -jar /usr/share/arrowhead/systems/arrowhead-gatekeeper-4.0.jar -d -daemon -tls
 ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/gatekeeper.log; do sleep 2; done'
 TimeoutStopSec=5

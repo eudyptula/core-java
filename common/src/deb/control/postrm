@@ -28,6 +28,7 @@ case "$1" in
         rm -f /etc/arrowhead/cert/truststore.p12
         rm -f /etc/arrowhead/cert/master.crt
         rmdir /etc/arrowhead/cert 2>/dev/null || true
+        rmdir /etc/arrowhead/systems 2>/dev/null || true
         rmdir /etc/arrowhead 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         if command -v mysql 2>&1 >/dev/null; then

@@ -24,12 +24,14 @@ PKG_NAME="arrowhead-eventhandler"
 
 case "$1" in
     purge)
+        AH_SYSTEMS_DIR="/etc/arrowhead/systems"
+
         rm -f \
             /var/log/arrowhead/${SERVICE_NAME}.log \
-            /etc/arrowhead/${SERVICE_NAME}/app.properties \
-            /etc/arrowhead/${SERVICE_NAME}/log4j.properties \
-            /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
-        rmdir /etc/arrowhead/${SERVICE_NAME} 2>/dev/null || true
+            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties \
+            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/log4j.properties \
+            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
+        rmdir ${AH_SYSTEMS_DIR}/${SERVICE_NAME} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         echo PURGE | debconf-communicate ${PKG_NAME}
     ;;

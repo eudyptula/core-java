@@ -4,7 +4,7 @@ After=network.target mysql.target arrowhead-serviceregistry-sql.service
 Requires=arrowhead-serviceregistry-sql.service
 
 [Service]
-WorkingDirectory=/etc/arrowhead/authorization
+WorkingDirectory=/etc/arrowhead/systems/authorization
 ExecStart=/usr/bin/java --add-modules java.xml.bind -jar /usr/share/arrowhead/systems/arrowhead-authorization-4.0.jar -d -daemon -tls
 ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/authorization.log; do sleep 2; done'
 TimeoutStopSec=5

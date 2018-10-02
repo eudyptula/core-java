@@ -96,7 +96,7 @@ After=network.target mysql.target arrowhead-serviceregistry-sql.service arrowhea
 Requires=arrowhead-serviceregistry-sql.service arrowhead-authorization.service arrowhead-gateway.service
 
 [Service]
-WorkingDirectory=/etc/arrowhead/gatekeeper
+WorkingDirectory=/etc/arrowhead/systems/gatekeeper
 ExecStart=/usr/bin/java --add-modules java.xml.bind -jar /usr/share/arrowhead/systems/arrowhead-gatekeeper-4.0.jar -d -daemon -tls
 ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/gatekeeper.log; do sleep 2; done'
 TimeoutStopSec=5
@@ -263,20 +263,20 @@ ah_db_own_cloud
 ah_db_user
 ```
 
-- Create a directory for configuration under /etc/arrowhead/SYSTEMNAME
+- Create a directory for configuration under `/etc/arrowhead/systems`
 
 ```bash
-if [ ! -d "/etc/arrowhead/${SERVICE_NAME}" ]; then
-    mkdir -p /etc/arrowhead/${SERVICE_NAME}
+if [ ! -d "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ]; then
+    mkdir -p ${AH_SYSTEMS_DIR}/${SERVICE_NAME}
 fi
 ```
 
 - Generate a signed system certificate in this dir (use functions in ahconf.sh again)
 
 ```bash
-if [ ! -f "/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
-    ah_cert_signed "/etc/arrowhead/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-    ah_cert_import "/etc/arrowhead/cert" "master" "/etc/arrowhead/${SERVICE_NAME}" ${SERVICE_NAME}
+if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
+    ah_cert_signed "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
+    ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME}
 fi
 ```
 
@@ -288,7 +288,7 @@ if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq
         keytool -export \
             -alias ${SERVICE_NAME} \
             -storepass ${AH_PASS_CERT}\
-            -keystore /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12 \
+            -keystore ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12 \
         | openssl x509 \
             -inform der \
             -pubkey \
@@ -314,8 +314,8 @@ fi
 - Create 'app.properties' file in this dir
 
 ```bash
-if [ ! -f "/etc/arrowhead/${SERVICE_NAME}/app.properties" ]; then
-    /bin/cat <<EOF >/etc/arrowhead/${SERVICE_NAME}/app.properties
+if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties" ]; then
+    /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -326,7 +326,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
+keystore=${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
 truststore=/etc/arrowhead/cert/truststore.p12
@@ -350,8 +350,8 @@ sr_secure_port=8443
 enable_auth_for_cloud=false
 
 EOF
-    chown root:arrowhead /etc/arrowhead/${SERVICE_NAME}/app.properties
-    chmod 640 /etc/arrowhead/${SERVICE_NAME}/app.properties
+    chown root:arrowhead ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
+    chmod 640 ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
 fi
 ```
 
@@ -403,12 +403,14 @@ PKG_NAME="arrowhead-gatekeeper"
 
 case "$1" in
     purge)
+        AH_SYSTEMS_DIR="/etc/arrowhead/systems"
+        
         rm -f \
             /var/log/arrowhead/${SERVICE_NAME}.log \
-            /etc/arrowhead/${SERVICE_NAME}/app.properties \
-            /etc/arrowhead/${SERVICE_NAME}/log4j.properties \
-            /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
-        rmdir /etc/arrowhead/${SERVICE_NAME} 2>/dev/null || true
+            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties \
+            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/log4j.properties \
+            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
+        rmdir ${AH_SYSTEMS_DIR}/${SERVICE_NAME} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         echo PURGE | debconf-communicate ${PKG_NAME}
     ;;

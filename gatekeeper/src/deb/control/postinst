@@ -34,13 +34,13 @@ case "$1" in
         ah_db_own_cloud
         ah_db_user
 
-        if [ ! -d "/etc/arrowhead/${SERVICE_NAME}" ]; then
-            mkdir -p /etc/arrowhead/${SERVICE_NAME}
+        if [ ! -d "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ]; then
+            mkdir -p ${AH_SYSTEMS_DIR}/${SERVICE_NAME}
         fi
 
-        if [ ! -f "/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
-            ah_cert_signed "/etc/arrowhead/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-            ah_cert_import "/etc/arrowhead/cert" "master" "/etc/arrowhead/${SERVICE_NAME}" ${SERVICE_NAME}
+        if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
+            ah_cert_signed "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
+            ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME}
         fi
 
         if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq 0 ]; then
@@ -48,7 +48,7 @@ case "$1" in
                 keytool -export \
                     -alias ${SERVICE_NAME} \
                     -storepass ${AH_PASS_CERT}\
-                    -keystore /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12 \
+                    -keystore ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12 \
                 | openssl x509 \
                     -inform der \
                     -pubkey \
@@ -70,8 +70,8 @@ UNLOCK TABLES;
 EOF
         fi
 
-        if [ ! -f "/etc/arrowhead/${SERVICE_NAME}/app.properties" ]; then
-            /bin/cat <<EOF >/etc/arrowhead/${SERVICE_NAME}/app.properties
+        if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties" ]; then
+            /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -82,14 +82,14 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
+keystore=${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
 truststore=/etc/arrowhead/cert/truststore.p12
 truststorepass=${AH_PASS_CERT}
 
 # Certificate related paths and passwords
-gatekeeper_keystore=/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
+gatekeeper_keystore=${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
 gatekeeper_keystore_pass=${AH_PASS_CERT}
 gatekeeper_keypass=${AH_PASS_CERT}
 cloud_keystore=/etc/arrowhead/cert/cloud.p12
@@ -122,8 +122,8 @@ orch_secure_port=8441
 timeout=30000
 use_gateway=true
 EOF
-            chown root:arrowhead /etc/arrowhead/${SERVICE_NAME}/app.properties
-            chmod 640 /etc/arrowhead/${SERVICE_NAME}/app.properties
+            chown root:arrowhead ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
+            chmod 640 ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
         fi
 
         ah_log4j_conf ${SERVICE_NAME}

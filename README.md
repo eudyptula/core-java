@@ -85,7 +85,7 @@ Output from systems are available with: `journalctl -u arrowhead-*.service`
 
 Restart services: `sudo systemctl restart arrowhead-\*.service`
 
-Configuration and certificates are in: `/etc/arrowhead`
+Configuration and certificates are found under: `/etc/arrowhead`
 
 Generated passwords can be found in `/var/cache/debconf/passwords.dat`
 
