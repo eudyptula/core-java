@@ -60,4 +60,5 @@ Description: You have to manually reconfigure all Arrowhead systems when changin
 Template: arrowhead-common/public_mysql
 Type: select
 Choices: Yes, No
+Default: No
 Description: Open MySQL for remote access?
