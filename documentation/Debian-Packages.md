@@ -275,10 +275,7 @@ fi
 - Generate a signed system certificate in this dir (use functions in ahconf.sh again)
 
 ```bash
-if [ ! -f "${SYSTEM_DIR}/${SYSTEM_NAME}.p12" ]; then
-    ah_cert_signed "${SYSTEM_DIR}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-    ah_cert_import "/etc/arrowhead/cert" "master" "${SYSTEM_DIR}" ${SYSTEM_NAME}
-fi
+ah_cert_signed_system ${SYSTEM_NAME}
 ```
 
 - Insert data into MySQL database if required (Gatekeeper currently does this)

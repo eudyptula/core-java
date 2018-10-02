@@ -121,6 +121,24 @@ ah_cert_signed () {
     fi
 }
 
+ah_cert_signed_system () {
+    name=${1}
+
+    path="${AH_SYSTEMS_DIR}/${name}"
+    file="${path}/${name}.p12"
+
+    if [ ! -f "${file}" ]; then
+        ah_cert_signed \
+            "${path}" \
+            ${name} \
+            "${name}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" \
+            /etc/arrowhead/cert \
+            cloud
+
+        ah_cert_import "/etc/arrowhead/cert" "master" "${path}" ${name}
+    fi
+}
+
 ah_cert_trust () {
     dst_path=${1}
     src_path=${2}

@@ -5,7 +5,7 @@
 
 set -e
 
-SYSTEM_NAME="service-registry-sql"
+SYSTEM_NAME="service_registry_sql"
 PKG_NAME="arrowhead-serviceregistry-sql"
 
 # summary of how this script can be called:

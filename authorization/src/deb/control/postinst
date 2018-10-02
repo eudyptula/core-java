@@ -42,10 +42,7 @@ case "$1" in
             mkdir -p ${SYSTEM_DIR}
         fi
 
-        if [ ! -f "${SYSTEM_DIR}/${SYSTEM_NAME}.p12" ]; then
-            ah_cert_signed "${SYSTEM_DIR}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-            ah_cert_import "/etc/arrowhead/cert" "master" "${SYSTEM_DIR}" ${SYSTEM_NAME}
-        fi
+        ah_cert_signed_system ${SYSTEM_NAME}
 
         if [ ! -f "${SYSTEM_DIR}/app.properties" ]; then
             /bin/cat <<EOF >${SYSTEM_DIR}/app.properties

@@ -5,7 +5,7 @@
 
 set -e
 
-SYSTEM_NAME="event-handler"
+SYSTEM_NAME="event_handler"
 PKG_NAME="arrowhead-eventhandler"
 
 # summary of how this script can be called:

@@ -15,7 +15,6 @@ SERVICE=${@}
 SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
 SYSTEM_STORE="${SYSTEM_DIR}/${SYSTEM_NAME}.p12"
 ARROWHEAD_IP=($(hostname -I))
-SYSTEM_CN="${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu"
 
 if [ -d "${SYSTEM_DIR}" ]; then
     echo "'${SYSTEM_DIR}' already exist, please remove system or use a different name." >&2
@@ -24,13 +23,8 @@ fi
 
 mkdir -p "${SYSTEM_DIR}"
 
-echo "Generating certificate '${SYSTEM_CN}'" >&2
-ah_cert_signed \
-    "${SYSTEM_DIR}" \
-    "${SYSTEM_NAME}" \
-    "${SYSTEM_CN}" \
-    /etc/arrowhead/cert \
-    cloud
+echo "Generating certificate for '${SYSTEM_NAME}'" >&2
+ah_cert_signed_system ${SYSTEM_NAME}
 
 if [ ! -z "${SERVICE}" ]; then
     ahcert_export \
