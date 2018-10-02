@@ -63,6 +63,22 @@ Currently they're not added to the default runlevel, so they will not restart on
 
 ### 6. Hints
 
+#### Add a new application system
+
+You can use the script `ah_add_system` to generate certificate, a configuration template, and add the necessary
+database entries for a new application system: 
+
+```sudo ah_add_system SYSTEM_NAME HOST [SERVICE]```
+
+If there is no service parameter only a consumer system will be generated, specify a service to generate a full provider
+system. Examples:
+
+```sudo ah_add_system client1 127.0.0.1```
+
+```sudo ah_add_system SecureTemperatureSensor 127.0.0.1 IndoorTemperature```
+
+#### Other hints
+
 Log files (log4j) are available in: `/var/log/arrowhead/*`
 
 Output from systems are available with: `journalctl -u arrowhead-*.service`
@@ -82,9 +98,6 @@ show tables;
 
 `apt purge` can be used to remove configuration files, database, log files, etc. Use `sudo apt purge arrowhead-\*` to
 remove everything arrowhead related.
-
-If you need to generate a new certificate for an application system, signed with the cloud certificate:
-`sudo ahcert PATH SYSTEM_NAME`, e.g. `sudo ahcert ~/ SecureTemperatureSensor`.
 
 For the provider and consumer example in the client skeletons, the script `sudo ah_quickstart_gen` can be used to
 generate the necessary certificates and database entries. It will also output the certificate/keystore password. Note,

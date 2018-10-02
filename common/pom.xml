@@ -175,8 +175,8 @@
 
                 <data>
                   <type>file</type>
-                  <src>${project.basedir}/src/deb/ahcert.sh</src>
-                  <dst>ahcert</dst>
+                  <src>${project.basedir}/src/deb/ah_add_system.sh</src>
+                  <dst>ah_add_system</dst>
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/bin</prefix>

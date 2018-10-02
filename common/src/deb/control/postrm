@@ -38,6 +38,10 @@ EOF
         fi
         deluser arrowhead || true
         echo PURGE | debconf-communicate ${PKG_NAME}
+
+        if [ -d /etc/arrowhead ]; then
+            echo "Directory '/etc/arrowhead' is not empty, please remove manually" >&2
+        fi
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
