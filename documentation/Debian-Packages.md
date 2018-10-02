@@ -220,6 +220,7 @@ PKG_NAME="arrowhead-authorization"
 case "$1" in
     configure)
         . /usr/share/arrowhead/conf/ahconf.sh
+        SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -266,17 +267,17 @@ ah_db_user
 - Create a directory for configuration under `/etc/arrowhead/systems`
 
 ```bash
-if [ ! -d "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ]; then
-    mkdir -p ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}
+if [ ! -d "${SYSTEM_DIR}" ]; then
+    mkdir -p ${SYSTEM_DIR}
 fi
 ```
 
 - Generate a signed system certificate in this dir (use functions in ahconf.sh again)
 
 ```bash
-if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12" ]; then
-    ah_cert_signed "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-    ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME}
+if [ ! -f "${SYSTEM_DIR}/${SYSTEM_NAME}.p12" ]; then
+    ah_cert_signed "${SYSTEM_DIR}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
+    ah_cert_import "/etc/arrowhead/cert" "master" "${SYSTEM_DIR}" ${SYSTEM_NAME}
 fi
 ```
 
@@ -288,7 +289,7 @@ if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq
         keytool -export \
             -alias ${SYSTEM_NAME} \
             -storepass ${AH_PASS_CERT}\
-            -keystore ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12 \
+            -keystore ${SYSTEM_DIR}/${SYSTEM_NAME}.p12 \
         | openssl x509 \
             -inform der \
             -pubkey \
@@ -314,8 +315,8 @@ fi
 - Create 'app.properties' file in this dir
 
 ```bash
-if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties" ]; then
-    /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
+if [ ! -f "${SYSTEM_DIR}/app.properties" ]; then
+    /bin/cat <<EOF >${SYSTEM_DIR}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -326,7 +327,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
+keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
 truststore=/etc/arrowhead/cert/truststore.p12
@@ -350,8 +351,8 @@ sr_secure_port=8443
 enable_auth_for_cloud=false
 
 EOF
-    chown root:arrowhead ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
-    chmod 640 ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
+    chown root:arrowhead ${SYSTEM_DIR}/app.properties
+    chmod 640 ${SYSTEM_DIR}/app.properties
 fi
 ```
 
@@ -404,13 +405,14 @@ PKG_NAME="arrowhead-gatekeeper"
 case "$1" in
     purge)
         AH_SYSTEMS_DIR="/etc/arrowhead/systems"
+        SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
         
         rm -f \
             /var/log/arrowhead/${SYSTEM_NAME}.log \
-            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties \
-            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/log4j.properties \
-            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
-        rmdir ${AH_SYSTEMS_DIR}/${SYSTEM_NAME} 2>/dev/null || true
+            ${SYSTEM_DIR}/app.properties \
+            ${SYSTEM_DIR}/log4j.properties \
+            ${SYSTEM_DIR}/${SYSTEM_NAME}.p12
+        rmdir ${SYSTEM_DIR} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         echo PURGE | debconf-communicate ${PKG_NAME}
     ;;

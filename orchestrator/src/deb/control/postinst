@@ -25,6 +25,7 @@ PKG_NAME="arrowhead-orchestrator"
 case "$1" in
     configure)
         . /usr/share/arrowhead/conf/ahconf.sh
+        SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
 
         echo "Configuring MySQL database..." >&2
         ah_db_logs
@@ -36,17 +37,17 @@ case "$1" in
         mysql -u root < /usr/share/arrowhead/db/create_orchestrator_db_empty.sql
         ah_db_user
 
-        if [ ! -d "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ]; then
-            mkdir -p ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}
+        if [ ! -d "${SYSTEM_DIR}" ]; then
+            mkdir -p ${SYSTEM_DIR}
         fi
 
-        if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12" ]; then
-            ah_cert_signed "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-            ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME}
+        if [ ! -f "${SYSTEM_DIR}/${SYSTEM_NAME}.p12" ]; then
+            ah_cert_signed "${SYSTEM_DIR}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
+            ah_cert_import "/etc/arrowhead/cert" "master" "${SYSTEM_DIR}" ${SYSTEM_NAME}
         fi
 
-        if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties" ]; then
-            /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
+        if [ ! -f "${SYSTEM_DIR}/app.properties" ]; then
+            /bin/cat <<EOF >${SYSTEM_DIR}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -57,7 +58,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
+keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
 truststore=/etc/arrowhead/cert/truststore.p12
@@ -77,8 +78,8 @@ sr_address=0.0.0.0
 sr_insecure_port=8442
 sr_secure_port=8443
 EOF
-            chown root:arrowhead ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
-            chmod 640 ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
+            chown root:arrowhead ${SYSTEM_DIR}/app.properties
+            chmod 640 ${SYSTEM_DIR}/app.properties
         fi
 
         ah_log4j_conf ${SYSTEM_NAME}
