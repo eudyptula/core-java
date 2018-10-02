@@ -32,13 +32,27 @@ Check Java version:
 
 `java -version`
 
-### 4. Build Arrowhead Debian Packages
+### 4a. Download an Arrowhead Debian Packages release
 
-Do this on your local Arrowhead development machine.
+Check the GitHub releases site <https://github.com/arrowhead-f/core-java/releases> for the latest release and download
+it: 
+
+`wget -c https://github.com/arrowhead-f/core-java/releases/download/4.0-debian/debian_packages.zip`
+
+Unpack it:
+
+```bash
+unzip debian_packages.zip
+cd debian_packages/
+```
+
+### 4b. Build Arrowhead Debian Packages
+
+To build the Debian packages yourself, start by cloning the repository:
 
 `git clone https://github.com/arrowhead-f/core-java.git -b feature/debian`
 
-Build:
+Build them with:
 
 `mvn package`
 
