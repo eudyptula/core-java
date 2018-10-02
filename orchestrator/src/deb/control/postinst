@@ -7,7 +7,7 @@ set -e
 
 . /usr/share/debconf/confmodule
 
-SERVICE_NAME="orchestrator"
+SYSTEM_NAME="orchestrator"
 PKG_NAME="arrowhead-orchestrator"
 
 # summary of how this script can be called:
@@ -36,17 +36,17 @@ case "$1" in
         mysql -u root < /usr/share/arrowhead/db/create_orchestrator_db_empty.sql
         ah_db_user
 
-        if [ ! -d "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ]; then
-            mkdir -p ${AH_SYSTEMS_DIR}/${SERVICE_NAME}
+        if [ ! -d "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ]; then
+            mkdir -p ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}
         fi
 
-        if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
-            ah_cert_signed "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-            ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME}
+        if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12" ]; then
+            ah_cert_signed "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
+            ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME}
         fi
 
-        if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties" ]; then
-            /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
+        if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties" ]; then
+            /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -57,7 +57,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
+keystore=${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
 truststore=/etc/arrowhead/cert/truststore.p12
@@ -77,11 +77,11 @@ sr_address=0.0.0.0
 sr_insecure_port=8442
 sr_secure_port=8443
 EOF
-            chown root:arrowhead ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
-            chmod 640 ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
+            chown root:arrowhead ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
+            chmod 640 ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
         fi
 
-        ah_log4j_conf ${SERVICE_NAME}
+        ah_log4j_conf ${SYSTEM_NAME}
 
         echo "Restarting ${PKG_NAME}..." >&2
         systemctl daemon-reload

@@ -5,7 +5,7 @@
 
 set -e
 
-SERVICE_NAME="gatekeeper"
+SYSTEM_NAME="gatekeeper"
 PKG_NAME="arrowhead-gatekeeper"
 
 # summary of how this script can be called:
@@ -27,11 +27,11 @@ case "$1" in
         AH_SYSTEMS_DIR="/etc/arrowhead/systems"
 
         rm -f \
-            /var/log/arrowhead/${SERVICE_NAME}.log \
-            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties \
-            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/log4j.properties \
-            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
-        rmdir ${AH_SYSTEMS_DIR}/${SERVICE_NAME} 2>/dev/null || true
+            /var/log/arrowhead/${SYSTEM_NAME}.log \
+            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties \
+            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/log4j.properties \
+            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
+        rmdir ${AH_SYSTEMS_DIR}/${SYSTEM_NAME} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         echo PURGE | debconf-communicate ${PKG_NAME}
     ;;

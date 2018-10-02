@@ -202,7 +202,7 @@ set -e
 
 . /usr/share/debconf/confmodule
 
-SERVICE_NAME="authorization"
+SYSTEM_NAME="authorization"
 PKG_NAME="arrowhead-authorization"
 
 # summary of how this script can be called:
@@ -266,17 +266,17 @@ ah_db_user
 - Create a directory for configuration under `/etc/arrowhead/systems`
 
 ```bash
-if [ ! -d "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ]; then
-    mkdir -p ${AH_SYSTEMS_DIR}/${SERVICE_NAME}
+if [ ! -d "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ]; then
+    mkdir -p ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}
 fi
 ```
 
 - Generate a signed system certificate in this dir (use functions in ahconf.sh again)
 
 ```bash
-if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
-    ah_cert_signed "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-    ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SERVICE_NAME}" ${SERVICE_NAME}
+if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12" ]; then
+    ah_cert_signed "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME} "${SYSTEM_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
+    ah_cert_import "/etc/arrowhead/cert" "master" "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}" ${SYSTEM_NAME}
 fi
 ```
 
@@ -286,9 +286,9 @@ fi
 if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq 0 ]; then
     pubkey64=$(\
         keytool -export \
-            -alias ${SERVICE_NAME} \
+            -alias ${SYSTEM_NAME} \
             -storepass ${AH_PASS_CERT}\
-            -keystore ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12 \
+            -keystore ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12 \
         | openssl x509 \
             -inform der \
             -pubkey \
@@ -297,7 +297,7 @@ if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq
 
     mysql -u root arrowhead <<EOF
 LOCK TABLES arrowhead_cloud WRITE;
-INSERT INTO arrowhead_cloud VALUES (1,'localhost','${pubkey64}','${AH_CLOUD_NAME}','${SERVICE_NAME}','${AH_OPERATOR}',8447,'Y');
+INSERT INTO arrowhead_cloud VALUES (1,'localhost','${pubkey64}','${AH_CLOUD_NAME}','${SYSTEM_NAME}','${AH_OPERATOR}',8447,'Y');
 UNLOCK TABLES;
 EOF
 fi
@@ -314,8 +314,8 @@ fi
 - Create 'app.properties' file in this dir
 
 ```bash
-if [ ! -f "${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties" ]; then
-    /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
+if [ ! -f "${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties" ]; then
+    /bin/cat <<EOF >${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -326,7 +326,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
+keystore=${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
 truststore=/etc/arrowhead/cert/truststore.p12
@@ -350,15 +350,15 @@ sr_secure_port=8443
 enable_auth_for_cloud=false
 
 EOF
-    chown root:arrowhead ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
-    chmod 640 ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties
+    chown root:arrowhead ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
+    chmod 640 ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties
 fi
 ```
 
 - Create log4j conf file in this dir (use 'ah_log4j_conf' function from ahconf.sh)
 
 ```bash
-ah_log4j_conf ${SERVICE_NAME}
+ah_log4j_conf ${SYSTEM_NAME}
 ```
 
 - Reload/restart the daemon
@@ -384,7 +384,7 @@ Should delete files and directories created by postinst.
 
 set -e
 
-SERVICE_NAME="gatekeeper"
+SYSTEM_NAME="gatekeeper"
 PKG_NAME="arrowhead-gatekeeper"
 
 # summary of how this script can be called:
@@ -406,11 +406,11 @@ case "$1" in
         AH_SYSTEMS_DIR="/etc/arrowhead/systems"
         
         rm -f \
-            /var/log/arrowhead/${SERVICE_NAME}.log \
-            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/app.properties \
-            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/log4j.properties \
-            ${AH_SYSTEMS_DIR}/${SERVICE_NAME}/${SERVICE_NAME}.p12
-        rmdir ${AH_SYSTEMS_DIR}/${SERVICE_NAME} 2>/dev/null || true
+            /var/log/arrowhead/${SYSTEM_NAME}.log \
+            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/app.properties \
+            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/log4j.properties \
+            ${AH_SYSTEMS_DIR}/${SYSTEM_NAME}/${SYSTEM_NAME}.p12
+        rmdir ${AH_SYSTEMS_DIR}/${SYSTEM_NAME} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         echo PURGE | debconf-communicate ${PKG_NAME}
     ;;
