@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 . /usr/share/debconf/confmodule
+. /usr/share/arrowhead/conf/ahconf.sh
 
 USER=$(logname)
 HOME=$(eval echo "~$USER")
@@ -49,14 +50,12 @@ case ${INSTALL_TYPE} in
 esac
 
 # Get certificate password
-db_get arrowhead-common/cert_password
-if [ -z "$RET" ]; then
+if [ -z "${AH_PASS_CERT}" ]; then
     db_input high arrowhead-common/cert_password || true
 fi
 
 # Get database password
-db_get arrowhead-common/mysql_password
-if [ -z "$RET" ]; then
+if [ -z "${AH_PASS_DB}" ]; then
     db_input high arrowhead-common/mysql_password || true
 fi
 
@@ -74,21 +73,22 @@ if [ ! -d /var/log/arrowhead ]; then
     chmod 750 /var/log/arrowhead
 fi
 
+# Reload global variables
+. /usr/share/arrowhead/conf/ahconf.sh
+
 # Generate certificate password (if required)
-db_get arrowhead-common/cert_password
-if [ -z "$RET" ]; then
+if [ -z "${AH_PASS_CERT}" ]; then
     PASS="$(openssl rand -base64 12)"
     db_set arrowhead-common/cert_password ${PASS}
 fi
 
 # Generate database password (if required)
-db_get arrowhead-common/mysql_password
-if [ -z "$RET" ]; then
+if [ -z "${AH_PASS_DB}" ]; then
     PASS="$(openssl rand -base64 12)"
     db_set arrowhead-common/mysql_password ${PASS}
 fi
 
-# Get functions and global variables
+# Reload global variables
 . /usr/share/arrowhead/conf/ahconf.sh
 
 # Do actions based on install type
