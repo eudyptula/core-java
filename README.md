@@ -91,6 +91,18 @@ system. Examples:
 
 ```sudo ah_add_system SecureTemperatureSensor 127.0.0.1 IndoorTemperature```
 
+#### Add a new cloud to a detached installation
+
+Run the script `ah_add_cloud` to generate a new certificate and update the databases on the existing cloud: 
+
+```sudo ah_add_cloud CLOUD_NAME HOST```
+
+E.g. (the IP address should be that of the new cloud):
+
+```sudo ah_add_cloud testcloud2 127.0.0.1```
+
+Use authorized mode to install the new cloud with the cloud and master certificate from the `/etc/arrowhead` folder.
+
 #### Other hints
 
 Log files (log4j) are available in: `/var/log/arrowhead/*`
@@ -116,9 +128,6 @@ remove everything arrowhead related.
 For the provider and consumer example in the client skeletons, the script `sudo ah_quickstart_gen` can be used to
 generate the necessary certificates and database entries. It will also output the certificate/keystore password. Note,
 this script should only be used for test clouds on a clean installation.
-
-For clouds installed in detached mode, a certificate for a second cloud can be generated with
-`sudo ahcert_cloud ./ CLOUD_NAME`, e.g. `sudo ahcert_cloud ./ testcloud2`.
 
 To switch to insecure mode of all core services, remove `-tls`in the service files and restart them, e.g.:
 

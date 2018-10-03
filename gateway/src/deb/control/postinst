@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # postinst script for arrowhead-gateway
 #
 # see: dh_installdeb(1)
@@ -38,6 +38,15 @@ case "$1" in
         ah_cert_signed_system ${SYSTEM_NAME}
 
         if [ ! -f "${SYSTEM_DIR}/app.properties" ]; then
+            db_get arrowhead-gateway/address; ADDRESS="$RET"
+            if [ -z "${ADDRESS}" ]; then
+                ADDRESS=($(hostname -I))
+                db_set arrowhead-gateway/address "${ADDRESS}"
+            fi
+            db_input high arrowhead-gateway/address || true
+            db_go || true
+            db_get arrowhead-gateway/address; ADDRESS="$RET"
+
             /bin/cat <<EOF >${SYSTEM_DIR}/app.properties
 ##########################################
 # MANDATORY PARAMETERS ONLY IN SECURE MODE
@@ -57,7 +66,7 @@ master_arrowhead_cert=${AH_CONF_DIR}/master.crt
 ################################################
 
 # Webserver parameters
-address=0.0.0.0
+address=${ADDRESS}
 insecure_port=8452
 secure_port=8453
 

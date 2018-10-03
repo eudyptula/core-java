@@ -1,0 +1,9 @@
+Template: arrowhead-gatekeeper/address
+Type: string
+Description: On which IP address should the gatekeeper bind?
+
+Template: arrowhead-gatekeeper/public_brokers
+Type: select
+Choices: Yes, No
+Default: Yes
+Description: Add public available Arrowhead brokers?

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # postinst script for arrowhead-gatekeeper
 #
 # see: dh_installdeb(1)
@@ -42,6 +42,16 @@ case "$1" in
         ah_cert_signed_system ${SYSTEM_NAME}
 
         if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq 0 ]; then
+
+            db_get arrowhead-gatekeeper/address; ADDRESS="$RET"
+            if [ -z "${ADDRESS}" ]; then
+                ADDRESS=($(hostname -I))
+                db_set arrowhead-gatekeeper/address "${ADDRESS}"
+            fi
+            db_input high arrowhead-gatekeeper/address || true
+            db_go || true
+            db_get arrowhead-gatekeeper/address; ADDRESS="$RET"
+
             pubkey64=$(\
                 keytool -export \
                     -alias ${SYSTEM_NAME} \
@@ -55,7 +65,7 @@ case "$1" in
 
             mysql -u root arrowhead <<EOF
 LOCK TABLES arrowhead_cloud WRITE;
-INSERT INTO arrowhead_cloud VALUES (1,'localhost','${pubkey64}','${AH_CLOUD_NAME}','${SYSTEM_NAME}','${AH_OPERATOR}',8447,'Y');
+INSERT INTO arrowhead_cloud VALUES (1,'${ADDRESS}','${pubkey64}','${AH_CLOUD_NAME}','${SYSTEM_NAME}','${AH_OPERATOR}',8447,'Y');
 UNLOCK TABLES;
 EOF
         fi
@@ -66,6 +76,34 @@ LOCK TABLES own_cloud WRITE;
 INSERT INTO own_cloud VALUES (1);
 UNLOCK TABLES;
 EOF
+        fi
+
+        if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM broker;") -eq 0 ]; then
+            db_input high arrowhead-gatekeeper/public_brokers || true
+            db_go || true
+            db_get arrowhead-gatekeeper/public_brokers; ADD_BROKERS="$RET"
+            case ${ADD_BROKERS} in
+                Yes )
+                    mysql -u root arrowhead <<EOF
+LOCK TABLES broker WRITE, hibernate_sequence WRITE;
+INSERT INTO broker (id, address, authentication_info, broker_name, port, is_secure)
+    SELECT next_val, 'arrowhead-relay.tmit.bme.hu', NULL, 'arrowhead-relay-insecure', 5672, 'N' FROM hibernate_sequence;
+UPDATE hibernate_sequence SET next_val = next_val + 1;
+INSERT INTO broker (id, address, authentication_info, broker_name, port, is_secure)
+    SELECT next_val, 'arrowhead-relay.tmit.bme.hu', NULL, 'arrowhead-relay-secure', 5671, 'Y' FROM hibernate_sequence;
+UPDATE hibernate_sequence SET next_val = next_val + 1;
+INSERT INTO broker (id, address, authentication_info, broker_name, port, is_secure)
+    SELECT next_val, 'arrowhead-relay2.tmit.bme.hu', NULL, 'arrowhead-relay2-insecure', 5672, 'N' FROM hibernate_sequence;
+UPDATE hibernate_sequence SET next_val = next_val + 1;
+INSERT INTO broker (id, address, authentication_info, broker_name, port, is_secure)
+    SELECT next_val, 'arrowhead-relay2.tmit.bme.hu', NULL, 'arrowhead-relay2-secure', 5671, 'Y' FROM hibernate_sequence;
+UPDATE hibernate_sequence SET next_val = next_val + 1;
+UNLOCK TABLES;
+EOF
+                    ;;
+                No )
+                    ;;
+            esac
         fi
 
         if [ ! -f "${SYSTEM_DIR}/app.properties" ]; then
