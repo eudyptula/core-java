@@ -79,27 +79,27 @@ Currently they're not added to the default runlevel, so they will not restart on
 
 #### Add a new application system
 
-You can use the script `ah_add_system` to generate certificate, a configuration template, and add the necessary
+You can use the script `ah_gen_system` to generate certificate, a configuration template, and add the necessary
 database entries for a new application system: 
 
-```sudo ah_add_system SYSTEM_NAME HOST [SERVICE]```
+```sudo ah_gen_system SYSTEM_NAME HOST [SERVICE]```
 
 If there is no service parameter only a consumer system will be generated, specify a service to generate a full provider
 system. Examples:
 
-```sudo ah_add_system client1 127.0.0.1```
+```sudo ah_gen_system client1 127.0.0.1```
 
-```sudo ah_add_system SecureTemperatureSensor 127.0.0.1 IndoorTemperature```
+```sudo ah_gen_system SecureTemperatureSensor 127.0.0.1 IndoorTemperature```
 
 #### Add a new cloud to a detached installation
 
-Run the script `ah_add_cloud` to generate a new certificate and update the databases on the existing cloud: 
+Run the script `ah_gen_cloud` to generate a new certificate and update the databases on the existing cloud: 
 
-```sudo ah_add_cloud CLOUD_NAME HOST```
+```sudo ah_gen_cloud CLOUD_NAME HOST```
 
 E.g. (the IP address should be that of the new cloud):
 
-```sudo ah_add_cloud testcloud2 127.0.0.1```
+```sudo ah_gen_cloud testcloud2 127.0.0.1```
 
 Use authorized mode to install the new cloud with the cloud and master certificate from the `/etc/arrowhead` folder.
 
@@ -125,7 +125,7 @@ show tables;
 `apt purge` can be used to remove configuration files, database, log files, etc. Use `sudo apt purge arrowhead-\*` to
 remove everything arrowhead related.
 
-For the provider and consumer example in the client skeletons, the script `sudo ah_quickstart_gen` can be used to
+For the provider and consumer example in the client skeletons, the script `sudo ah_gen_quickstart` can be used to
 generate the necessary certificates and database entries. It will also output the certificate/keystore password. Note,
 this script should only be used for test clouds on a clean installation.
 
