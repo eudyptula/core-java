@@ -4,7 +4,7 @@
 . /usr/share/arrowhead/conf/ahconf.sh
 
 if [ "$#" -lt 2 ]; then
-    exho "Syntax: ${0} CLOUD_NAME HOST"
+    echo "Syntax: ${0} CLOUD_NAME HOST"
     exit 1
 fi
 
@@ -34,26 +34,21 @@ CLOUD_64PUB=$(\
     | tr -d '\n'\
 )
 
-echo "Registering cloud '${CLOUD_NAME}' in database" >&2
-mysql -u root arrowhead <<EOF
-    LOCK TABLES arrowhead_cloud WRITE, hibernate_sequence WRITE, neighbor_cloud WRITE;
-    INSERT INTO arrowhead_cloud
-        (id, address, authentication_info, cloud_name, gatekeeper_service_uri, operator, port, is_secure)
-        SELECT
-            next_val,
-            '${CLOUD_HOST}',
-            '${CLOUD_64PUB}',
-            '${CLOUD_NAME}',
-            'gatekeeper',
-            '${AH_OPERATOR}',
-            '8447',
-            'Y'
-            FROM hibernate_sequence;
-    INSERT INTO neighbor_cloud (cloud_id) SELECT next_val FROM hibernate_sequence;
-    UPDATE hibernate_sequence SET next_val = next_val + 1;
-    UNLOCK TABLES;
-EOF
+# This restarts gateway and gatekeeper implicitly
+ah_add_neighbor ${AH_OPERATOR} ${CLOUD_NAME} ${CLOUD_HOST} ${CLOUD_64PUB}
 
 echo >&2
 echo "Certificate stored in '${AH_CLOUDS_DIR}'" >&2
 echo "Password for certificate stores: ${AH_PASS_CERT}" >&2
+
+db_get arrowhead-gatekeeper/address; OWN_HOST="$RET"
+
+OWN_64PUB=$(\
+    sudo keytool -exportcert -rfc -keystore "${AH_SYSTEMS_DIR}/gatekeeper/gatekeeper.p12" -storepass ${AH_PASS_CERT} -v -alias "gatekeeper" \
+    | openssl x509 -pubkey -noout \
+    | sed '1d;$d' \
+    | tr -d '\n'\
+)
+echo >&2
+echo "On the new cloud, you should call:" >&2
+echo "ah_add_neighbor ${AH_OPERATOR} ${AH_CLOUD_NAME} ${OWN_HOST} ${OWN_64PUB}" >&2
