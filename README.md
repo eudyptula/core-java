@@ -102,6 +102,13 @@ E.g. (the IP address should be that of the new cloud):
 ```sudo ah_gen_cloud testcloud2 127.0.0.1```
 
 Use authorized mode to install the new cloud with the cloud and master certificate from the `/etc/arrowhead` folder.
+Afterwards, call `ah_add_neighbor` on the new cloud (`ah_gen_cloud` will output the correct parameters).
+
+#### Add a new neighbor to a cloud
+
+Use the script `ah_add_neighbor` to add a neighboring cloud:
+
+```ah_add_neighbor OPERATOR CLOUD_NAME HOST AUTH_INFO```
 
 #### Other hints
 
