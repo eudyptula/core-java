@@ -88,6 +88,29 @@ if [ -z "${AH_PASS_DB}" ]; then
     db_set arrowhead-common/mysql_password ${PASS}
 fi
 
+case ${INSTALL_TYPE} in
+    "Authorized" )
+        # Get additional variables
+        db_get arrowhead-common/cloud_cert; cloud_cert=$RET
+        db_get arrowhead-common/cloud_alias; cloud_alias=$RET
+        db_get arrowhead-common/cloud_password; cloud_password=$RET
+        db_get arrowhead-common/master_cert; master_cert=$RET
+
+        # Extract data from CN field
+        subject=$(keytool -list -keystore "${cloud_cert}" -storepass "${cloud_password}" -v -alias "${cloud_alias}" | grep "Owner:" | head -n1 | sed 's|Owner: ||')
+        cloud_name=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\1|')
+        operator=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\2|')
+        company=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\3|')
+        country=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\4|')
+
+        # Store data
+        db_set arrowhead-common/cloudname ${cloud_name}
+        db_set arrowhead-common/operator ${operator}
+        db_set arrowhead-common/company ${company}
+        db_set arrowhead-common/country ${country}
+        ;;
+esac
+
 # Reload global variables
 . /usr/share/arrowhead/conf/ahconf.sh
 
@@ -95,12 +118,6 @@ fi
 case ${INSTALL_TYPE} in
     "Authorized" )
         if [ ! -f ${AH_CLOUDS_DIR}/${AH_CLOUD_NAME}.p12 ]; then
-            # Get additional variables
-            db_get arrowhead-common/cloud_cert; cloud_cert=$RET
-            db_get arrowhead-common/cloud_alias; cloud_alias=$RET
-            db_get arrowhead-common/cloud_password; cloud_password=$RET
-            db_get arrowhead-common/master_cert; master_cert=$RET
-
             # Store cloud certificate
             keytool -importkeystore \
                 -srckeypass ${cloud_password} \
@@ -119,19 +136,6 @@ case ${INSTALL_TYPE} in
             cp "${master_cert}" "${AH_CONF_DIR}/master.crt"
             chown :arrowhead "${AH_CONF_DIR}/master.crt"
             chmod 640 "${AH_CONF_DIR}/master.crt"
-
-            # Extract data from CN field
-            subject=$(keytool -list -keystore "${AH_CLOUDS_DIR}/${AH_CLOUD_NAME}.p12" -storepass ${AH_PASS_CERT} -v -alias ${AH_CLOUD_NAME} | grep "Owner:" | head -n1 | sed 's|Owner: ||')
-            cloud_name=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\1|')
-            operator=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\2|')
-            company=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\3|')
-            country=$(echo "${subject}" | sed 's|^.*CN=\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^,]*\),.*$|\4|')
-
-            # Store data
-            db_set arrowhead-common/cloudname ${cloud_name}
-            db_set arrowhead-common/operator ${operator}
-            db_set arrowhead-common/company ${company}
-            db_set arrowhead-common/country ${country}
         fi
         ;;
 
