@@ -197,17 +197,6 @@
 
                 <data>
                   <type>file</type>
-                  <src>${project.basedir}/src/deb/ahcert_export.sh</src>
-                  <dst>ahcert_export</dst>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/bin</prefix>
-                    <filemode>775</filemode>
-                  </mapper>
-                </data>
-
-                <data>
-                  <type>file</type>
                   <src>${project.basedir}/src/deb/ah_quickstart_gen.sh</src>
                   <dst>ah_quickstart_gen</dst>
                   <mapper>

@@ -8,9 +8,9 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi
 
-SYSTEM_NAME=${1}; shift
-SYSTEM_HOST=${1}; shift
-SERVICE=${@}
+SYSTEM_NAME=${1}
+SYSTEM_HOST=${2}
+SERVICE=${3}
 
 SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
 SYSTEM_STORE="${SYSTEM_DIR}/${SYSTEM_NAME}.p12"
@@ -27,9 +27,7 @@ echo "Generating certificate for '${SYSTEM_NAME}'" >&2
 ah_cert_signed_system ${SYSTEM_NAME}
 
 if [ ! -z "${SERVICE}" ]; then
-    ahcert_export \
-        authorization \
-        "${SYSTEM_DIR}"
+    ah_cert_export "${AH_SYSTEMS_DIR}/authorization" "authorization" "${SYSTEM_DIR}"
 fi
 
 SYSTEM_64PUB=$(\
