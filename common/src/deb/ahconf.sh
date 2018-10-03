@@ -1,6 +1,7 @@
 #!/bin/sh
 
 AH_CONF_DIR="/etc/arrowhead"
+AH_CLOUDS_DIR="${AH_CONF_DIR}/clouds"
 AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
 
 db_get arrowhead-common/mysql_password; AH_PASS_DB=$RET
@@ -133,10 +134,10 @@ ah_cert_signed_system () {
             "${path}" \
             ${name} \
             "${name}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" \
-            ${AH_CONF_DIR}/cert \
-            cloud
+            ${AH_CLOUDS_DIR} \
+            ${AH_CLOUD_NAME}
 
-        ah_cert_import "${AH_CONF_DIR}/cert" "master" "${path}" ${name}
+        ah_cert_import "${AH_CONF_DIR}" "master" "${path}" ${name}
     fi
 }
 

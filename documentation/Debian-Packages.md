@@ -327,7 +327,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
-truststore=${AH_CONF_DIR}/cert/truststore.p12
+truststore=${AH_CONF_DIR}/truststore.p12
 truststorepass=${AH_PASS_CERT}
 
 ################################################
@@ -382,8 +382,9 @@ Should delete files and directories created by postinst.
 
 set -e
 
+. /usr/share/debconf/confmodule
+
 SYSTEM_NAME="gatekeeper"
-PKG_NAME="arrowhead-gatekeeper"
 
 # summary of how this script can be called:
 #        * <postrm> `remove'
@@ -412,7 +413,7 @@ case "$1" in
             ${SYSTEM_DIR}/${SYSTEM_NAME}.p12
         rmdir ${SYSTEM_DIR} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
-        echo PURGE | debconf-communicate ${PKG_NAME}
+        db_purge
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
