@@ -14,7 +14,7 @@ SERVICE=${@}
 
 SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
 SYSTEM_STORE="${SYSTEM_DIR}/${SYSTEM_NAME}.p12"
-ARROWHEAD_IP=($(hostname -I))
+ARROWHEAD_IPS=$(hostname -I)
 
 if [ -d "${SYSTEM_DIR}" ]; then
     echo "'${SYSTEM_DIR}' already exist, please remove system or use a different name." >&2
@@ -99,12 +99,12 @@ insecure_port=8460
 secure_port=8461
 
 # Service Registry
-sr_address=${ARROWHEAD_IP}
+sr_address=0.0.0.0 # ${ARROWHEAD_IPS}
 sr_insecure_port=8442
 sr_secure_port=8443
 
 # Orchestrator
-orch_address=${ARROWHEAD_IP}
+orch_address=0.0.0.0 # ${ARROWHEAD_IPS}
 orch_insecure_port=8440
 orch_secure_port=8441
 
