@@ -83,17 +83,17 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
-truststore=/etc/arrowhead/cert/truststore.p12
+truststore=${AH_CONF_DIR}/cert/truststore.p12
 truststorepass=${AH_PASS_CERT}
 
 # Certificate related paths and passwords
 gatekeeper_keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 gatekeeper_keystore_pass=${AH_PASS_CERT}
 gatekeeper_keypass=${AH_PASS_CERT}
-cloud_keystore=/etc/arrowhead/cert/cloud.p12
+cloud_keystore=${AH_CONF_DIR}/cert/cloud.p12
 cloud_keystore_pass=${AH_PASS_CERT}
 cloud_keypass=${AH_PASS_CERT}
-master_arrowhead_cert=/etc/arrowhead/cert/master.crt
+master_arrowhead_cert=${AH_CONF_DIR}/cert/master.crt
 
 ################################################
 # NON-MANDATORY PARAMETERS (defaults are showed)

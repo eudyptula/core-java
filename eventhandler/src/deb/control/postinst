@@ -55,7 +55,7 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
-truststore=/etc/arrowhead/cert/truststore.p12
+truststore=${AH_CONF_DIR}/cert/truststore.p12
 truststorepass=${AH_PASS_CERT}
 
 ################################################

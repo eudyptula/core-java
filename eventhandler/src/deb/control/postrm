@@ -24,7 +24,8 @@ PKG_NAME="arrowhead-eventhandler"
 
 case "$1" in
     purge)
-        AH_SYSTEMS_DIR="/etc/arrowhead/systems"
+        AH_CONF_DIR="/etc/arrowhead"
+        AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
         SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
 
         rm -f \

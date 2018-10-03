@@ -47,10 +47,10 @@ case "$1" in
 keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
-truststore=/etc/arrowhead/cert/truststore.p12
+truststore=${AH_CONF_DIR}/cert/truststore.p12
 truststorepass=${AH_PASS_CERT}
 trustpass=${AH_PASS_CERT}
-master_arrowhead_cert=/etc/arrowhead/cert/master.crt
+master_arrowhead_cert=${AH_CONF_DIR}/cert/master.crt
 
 ################################################
 # NON-MANDATORY PARAMETERS (defaults are showed)

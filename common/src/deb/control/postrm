@@ -23,13 +23,16 @@ PKG_NAME="arrowhead-common"
 
 case "$1" in
     purge)
-        rm -f /etc/arrowhead/cert/cloud.p12
-        rm -f /etc/arrowhead/cert/master.p12
-        rm -f /etc/arrowhead/cert/truststore.p12
-        rm -f /etc/arrowhead/cert/master.crt
-        rmdir /etc/arrowhead/cert 2>/dev/null || true
-        rmdir /etc/arrowhead/systems 2>/dev/null || true
-        rmdir /etc/arrowhead 2>/dev/null || true
+        AH_CONF_DIR="/etc/arrowhead"
+        AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
+
+        rm -f ${AH_CONF_DIR}/cert/cloud.p12
+        rm -f ${AH_CONF_DIR}/cert/master.p12
+        rm -f ${AH_CONF_DIR}/cert/truststore.p12
+        rm -f ${AH_CONF_DIR}/cert/master.crt
+        rmdir ${AH_CONF_DIR}/cert 2>/dev/null || true
+        rmdir ${AH_SYSTEMS_DIR} 2>/dev/null || true
+        rmdir ${AH_CONF_DIR} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         if command -v mysql 2>&1 >/dev/null; then
             mysql -u root <<EOF
@@ -40,8 +43,8 @@ EOF
         deluser arrowhead || true
         echo PURGE | debconf-communicate ${PKG_NAME}
 
-        if [ -d /etc/arrowhead ]; then
-            echo "Directory '/etc/arrowhead' is not empty, please remove manually" >&2
+        if [ -d ${AH_CONF_DIR} ]; then
+            echo "Directory '${AH_CONF_DIR}' is not empty, please remove manually" >&2
         fi
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
