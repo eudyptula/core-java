@@ -96,7 +96,7 @@ After=network.target mysql.target arrowhead-serviceregistry-sql.service arrowhea
 Requires=arrowhead-serviceregistry-sql.service arrowhead-authorization.service arrowhead-gateway.service
 
 [Service]
-WorkingDirectory=/etc/arrowhead/gatekeeper
+WorkingDirectory=/etc/arrowhead/systems/gatekeeper
 ExecStart=/usr/bin/java --add-modules java.xml.bind -jar /usr/share/arrowhead/systems/arrowhead-gatekeeper-4.0.jar -d -daemon -tls
 ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/gatekeeper.log; do sleep 2; done'
 TimeoutStopSec=5
@@ -202,7 +202,7 @@ set -e
 
 . /usr/share/debconf/confmodule
 
-SERVICE_NAME="authorization"
+SYSTEM_NAME="authorization"
 PKG_NAME="arrowhead-authorization"
 
 # summary of how this script can be called:
@@ -220,6 +220,7 @@ PKG_NAME="arrowhead-authorization"
 case "$1" in
     configure)
         . /usr/share/arrowhead/conf/ahconf.sh
+        SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -263,21 +264,18 @@ ah_db_own_cloud
 ah_db_user
 ```
 
-- Create a directory for configuration under /etc/arrowhead/SYSTEMNAME
+- Create a directory for configuration under `/etc/arrowhead/systems`
 
 ```bash
-if [ ! -d "/etc/arrowhead/${SERVICE_NAME}" ]; then
-    mkdir -p /etc/arrowhead/${SERVICE_NAME}
+if [ ! -d "${SYSTEM_DIR}" ]; then
+    mkdir -p ${SYSTEM_DIR}
 fi
 ```
 
 - Generate a signed system certificate in this dir (use functions in ahconf.sh again)
 
 ```bash
-if [ ! -f "/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12" ]; then
-    ah_cert_signed "/etc/arrowhead/${SERVICE_NAME}" ${SERVICE_NAME} "${SERVICE_NAME}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" /etc/arrowhead/cert cloud
-    ah_cert_import "/etc/arrowhead/cert" "master" "/etc/arrowhead/${SERVICE_NAME}" ${SERVICE_NAME}
-fi
+ah_cert_signed_system ${SYSTEM_NAME}
 ```
 
 - Insert data into MySQL database if required (Gatekeeper currently does this)
@@ -286,9 +284,9 @@ fi
 if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq 0 ]; then
     pubkey64=$(\
         keytool -export \
-            -alias ${SERVICE_NAME} \
+            -alias ${SYSTEM_NAME} \
             -storepass ${AH_PASS_CERT}\
-            -keystore /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12 \
+            -keystore ${SYSTEM_DIR}/${SYSTEM_NAME}.p12 \
         | openssl x509 \
             -inform der \
             -pubkey \
@@ -297,7 +295,7 @@ if [ $(mysql -u root arrowhead -sse "SELECT COUNT(*) FROM arrowhead_cloud;") -eq
 
     mysql -u root arrowhead <<EOF
 LOCK TABLES arrowhead_cloud WRITE;
-INSERT INTO arrowhead_cloud VALUES (1,'localhost','${pubkey64}','${AH_CLOUD_NAME}','${SERVICE_NAME}','${AH_OPERATOR}',8447,'Y');
+INSERT INTO arrowhead_cloud VALUES (1,'localhost','${pubkey64}','${AH_CLOUD_NAME}','${SYSTEM_NAME}','${AH_OPERATOR}',8447,'Y');
 UNLOCK TABLES;
 EOF
 fi
@@ -314,8 +312,8 @@ fi
 - Create 'app.properties' file in this dir
 
 ```bash
-if [ ! -f "/etc/arrowhead/${SERVICE_NAME}/app.properties" ]; then
-    /bin/cat <<EOF >/etc/arrowhead/${SERVICE_NAME}/app.properties
+if [ ! -f "${SYSTEM_DIR}/app.properties" ]; then
+    /bin/cat <<EOF >${SYSTEM_DIR}/app.properties
 # Database parameters
 db_user=arrowhead
 db_password=${AH_PASS_DB}
@@ -326,10 +324,10 @@ db_address=jdbc:mysql://127.0.0.1:3306/arrowhead?useSSL=false
 ##########################################
 
 # Certificate related paths and passwords
-keystore=/etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
+keystore=${SYSTEM_DIR}/${SYSTEM_NAME}.p12
 keystorepass=${AH_PASS_CERT}
 keypass=${AH_PASS_CERT}
-truststore=/etc/arrowhead/cert/truststore.p12
+truststore=${AH_CONF_DIR}/truststore.p12
 truststorepass=${AH_PASS_CERT}
 
 ################################################
@@ -350,15 +348,15 @@ sr_secure_port=8443
 enable_auth_for_cloud=false
 
 EOF
-    chown root:arrowhead /etc/arrowhead/${SERVICE_NAME}/app.properties
-    chmod 640 /etc/arrowhead/${SERVICE_NAME}/app.properties
+    chown root:arrowhead ${SYSTEM_DIR}/app.properties
+    chmod 640 ${SYSTEM_DIR}/app.properties
 fi
 ```
 
 - Create log4j conf file in this dir (use 'ah_log4j_conf' function from ahconf.sh)
 
 ```bash
-ah_log4j_conf ${SERVICE_NAME}
+ah_log4j_conf ${SYSTEM_NAME}
 ```
 
 - Reload/restart the daemon
@@ -384,8 +382,9 @@ Should delete files and directories created by postinst.
 
 set -e
 
-SERVICE_NAME="gatekeeper"
-PKG_NAME="arrowhead-gatekeeper"
+. /usr/share/debconf/confmodule
+
+SYSTEM_NAME="gatekeeper"
 
 # summary of how this script can be called:
 #        * <postrm> `remove'
@@ -403,14 +402,18 @@ PKG_NAME="arrowhead-gatekeeper"
 
 case "$1" in
     purge)
+        AH_CONF_DIR="/etc/arrowhead"
+        AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
+        SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
+        
         rm -f \
-            /var/log/arrowhead/${SERVICE_NAME}.log \
-            /etc/arrowhead/${SERVICE_NAME}/app.properties \
-            /etc/arrowhead/${SERVICE_NAME}/log4j.properties \
-            /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
-        rmdir /etc/arrowhead/${SERVICE_NAME} 2>/dev/null || true
+            /var/log/arrowhead/${SYSTEM_NAME}.log \
+            ${SYSTEM_DIR}/app.properties \
+            ${SYSTEM_DIR}/log4j.properties \
+            ${SYSTEM_DIR}/${SYSTEM_NAME}.p12
+        rmdir ${SYSTEM_DIR} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
-        echo PURGE | debconf-communicate ${PKG_NAME}
+        db_purge
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;

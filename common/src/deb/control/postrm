@@ -5,7 +5,7 @@
 
 set -e
 
-PKG_NAME="arrowhead-common"
+. /usr/share/debconf/confmodule
 
 # summary of how this script can be called:
 #        * <postrm> `remove'
@@ -23,12 +23,18 @@ PKG_NAME="arrowhead-common"
 
 case "$1" in
     purge)
-        rm -f /etc/arrowhead/cert/cloud.p12
-        rm -f /etc/arrowhead/cert/master.p12
-        rm -f /etc/arrowhead/cert/truststore.p12
-        rm -f /etc/arrowhead/cert/master.crt
-        rmdir /etc/arrowhead/cert 2>/dev/null || true
-        rmdir /etc/arrowhead 2>/dev/null || true
+        db_get arrowhead-common/cloudname; AH_CLOUD_NAME=$RET
+        AH_CONF_DIR="/etc/arrowhead"
+        AH_CLOUDS_DIR="${AH_CONF_DIR}/clouds"
+        AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
+
+        rm -f ${AH_CLOUDS_DIR}/${AH_CLOUD_NAME}.p12
+        rm -f ${AH_CONF_DIR}/master.p12
+        rm -f ${AH_CONF_DIR}/truststore.p12
+        rm -f ${AH_CONF_DIR}/master.crt
+        rmdir ${AH_CLOUDS_DIR} 2>/dev/null || true
+        rmdir ${AH_SYSTEMS_DIR} 2>/dev/null || true
+        rmdir ${AH_CONF_DIR} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
         if command -v mysql 2>&1 >/dev/null; then
             mysql -u root <<EOF
@@ -37,7 +43,11 @@ DROP USER IF EXISTS arrowhead@localhost;
 EOF
         fi
         deluser arrowhead || true
-        echo PURGE | debconf-communicate ${PKG_NAME}
+        db_purge
+
+        if [ -d ${AH_CONF_DIR} ]; then
+            echo "Directory '${AH_CONF_DIR}' is not empty, please remove manually" >&2
+        fi
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;

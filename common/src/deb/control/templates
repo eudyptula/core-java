@@ -5,12 +5,12 @@ Description: Do you want to perform (1) a detached, standalone install or (2) au
 
 Template: arrowhead-common/cloud_cert
 Type: string
-Default: /cloud.p12
+Default:
 Description: Enter the path for the externally issued cloud cert
 
 Template: arrowhead-common/master_cert
 Type: string
-Default: /master.crt
+Default:
 Description: Enter the path for the externally issued cloud cert
 
 Template: arrowhead-common/cloud_password
@@ -60,4 +60,5 @@ Description: You have to manually reconfigure all Arrowhead systems when changin
 Template: arrowhead-common/public_mysql
 Type: select
 Choices: Yes, No
+Default: No
 Description: Open MySQL for remote access?

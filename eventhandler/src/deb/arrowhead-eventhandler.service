@@ -4,9 +4,9 @@ After=network.target mysql.target arrowhead-serviceregistry-sql.service
 Requires=arrowhead-serviceregistry-sql.service
 
 [Service]
-WorkingDirectory=/etc/arrowhead/event-handler
+WorkingDirectory=/etc/arrowhead/systems/event_handler
 ExecStart=/usr/bin/java --add-modules java.xml.bind -jar /usr/share/arrowhead/systems/arrowhead-eventhandler-4.0.jar -d -daemon -tls
-ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/event-handler.log; do sleep 2; done'
+ExecStartPost=/bin/bash -c 'sleep 2; while ! grep -m1 "Startup completed." /var/log/arrowhead/event_handler.log; do sleep 2; done'
 TimeoutStopSec=5
 Type=simple
 User=arrowhead

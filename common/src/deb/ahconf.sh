@@ -1,5 +1,9 @@
 #!/bin/sh
 
+AH_CONF_DIR="/etc/arrowhead"
+AH_CLOUDS_DIR="${AH_CONF_DIR}/clouds"
+AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
+
 db_get arrowhead-common/mysql_password; AH_PASS_DB=$RET
 db_get arrowhead-common/cert_password; AH_PASS_CERT=$RET
 db_get arrowhead-common/cloudname; AH_CLOUD_NAME=$RET
@@ -8,90 +12,160 @@ db_get arrowhead-common/company; AH_COMPANY=$RET
 db_get arrowhead-common/country; AH_COUNTRY=$RET
 
 ah_cert () {
-    if [ ! -f "${1}/${2}.p12" ]; then
+    dst_path=${1}
+    dst_name=${2}
+    cn=${3}
+
+    file="${dst_path}/${dst_name}.p12"
+
+    if [ ! -f "${file}" ]; then
         keytool -genkeypair \
-            -alias ${2} \
+            -alias ${dst_name} \
             -keyalg RSA \
             -keysize 2048 \
-            -dname "CN=${3}, OU=${AH_OPERATOR}, O=${AH_COMPANY}, C=${AH_COUNTRY}" \
+            -dname "CN=${cn}, OU=${AH_OPERATOR}, O=${AH_COMPANY}, C=${AH_COUNTRY}" \
             -validity 3650 \
             -keypass ${AH_PASS_CERT} \
-            -keystore ${1}/${2}.p12 \
+            -keystore ${file} \
             -storepass ${AH_PASS_CERT} \
             -storetype PKCS12 \
             -ext BasicConstraints:"Subject is a CA\nPath Length Constraint: None"
 
-        chown :arrowhead ${1}/${2}.p12
-        chmod 640 ${1}/${2}.p12
+        chown :arrowhead ${file}
+        chmod 640 ${file}
     fi
 }
 
+ah_cert_export () {
+    src_path=${1}
+    dst_name=${2}
+    dst_path=${3}
+
+    src_file="${src_path}/${dst_name}.p12"
+    dst_file="${dst_path}/${dst_name}.crt"
+
+    if [ ! -f "${dst_file}" ]; then
+        keytool -exportcert \
+            -rfc \
+            -alias ${dst_name} \
+            -storepass ${AH_PASS_CERT} \
+            -keystore ${src_file} \
+        | openssl x509 \
+            -out ${dst_file}
+
+        chown :arrowhead ${dst_file}
+        chmod 640 ${dst_file}
+    fi
+}
+
+ah_cert_import () {
+    src_path=${1}
+    src_name=${2}
+    dst_path=${3}
+    dst_name=${4}
+
+    src_file="${src_path}/${src_name}.crt"
+    dst_file="${dst_path}/${dst_name}.p12"
+
+    keytool -import \
+        -trustcacerts \
+        -file ${src_file} \
+        -alias ${src_name} \
+        -keystore ${dst_file} \
+        -keypass ${AH_PASS_CERT} \
+        -storepass ${AH_PASS_CERT} \
+        -storetype PKCS12 \
+        -noprompt
+}
+
 ah_cert_signed () {
-    if [ ! -f "${1}/${2}.p12" ]; then
-        ah_cert $1 $2 $3
+    dst_path=${1}
+    dst_name=${2}
+    cn=${3}
+    src_path=${4}
+    src_name=${5}
+
+    src_file="${src_path}/${src_name}.p12"
+    dst_file="${dst_path}/${dst_name}.p12"
+    
+    if [ ! -f "${dst_file}" ]; then
+        ah_cert ${dst_path} ${dst_name} ${cn}
 
         keytool -export \
-            -alias ${5} \
+            -alias ${src_name} \
             -storepass ${AH_PASS_CERT} \
-            -keystore ${4}/${5}.p12 \
+            -keystore ${src_file} \
         | keytool -import \
             -trustcacerts \
-            -alias ${5} \
-            -keystore ${1}/${2}.p12 \
+            -alias ${src_name} \
+            -keystore ${dst_file} \
             -keypass ${AH_PASS_CERT} \
             -storepass ${AH_PASS_CERT} \
             -storetype PKCS12 \
             -noprompt
 
         keytool -certreq \
-            -alias ${2} \
+            -alias ${dst_name} \
             -keypass ${AH_PASS_CERT} \
-            -keystore ${1}/${2}.p12 \
+            -keystore ${dst_file} \
             -storepass ${AH_PASS_CERT} \
         | keytool -gencert \
-            -alias ${5} \
+            -alias ${src_name} \
             -keypass ${AH_PASS_CERT} \
-            -keystore ${4}/${5}.p12 \
+            -keystore ${src_file} \
             -storepass ${AH_PASS_CERT} \
         | keytool -importcert \
-            -alias ${2} \
+            -alias ${dst_name} \
             -keypass ${AH_PASS_CERT} \
-            -keystore ${1}/${2}.p12 \
+            -keystore ${dst_file} \
             -storepass ${AH_PASS_CERT} \
             -noprompt
     fi
 }
 
+ah_cert_signed_system () {
+    name=${1}
+
+    path="${AH_SYSTEMS_DIR}/${name}"
+    file="${path}/${name}.p12"
+
+    if [ ! -f "${file}" ]; then
+        ah_cert_signed \
+            "${path}" \
+            ${name} \
+            "${name}.${AH_CLOUD_NAME}.${AH_OPERATOR}.arrowhead.eu" \
+            ${AH_CLOUDS_DIR} \
+            ${AH_CLOUD_NAME}
+
+        ah_cert_import "${AH_CONF_DIR}" "master" "${path}" ${name}
+    fi
+}
+
 ah_cert_trust () {
-    if [ ! -f "${1}/truststore.p12" ]; then
+    dst_path=${1}
+    src_path=${2}
+    src_name=${3}
+
+    src_file="${src_path}/${src_name}.p12"
+    dst_file="${dst_path}/truststore.p12"
+    
+    if [ ! -f "${dst_file}" ]; then
         keytool -export \
-            -alias ${3} \
+            -alias ${src_name} \
             -storepass ${AH_PASS_CERT} \
-            -keystore ${2}/${3}.p12 \
+            -keystore ${src_file} \
         | keytool -import \
             -trustcacerts \
-            -alias ${3} \
-            -keystore ${1}/truststore.p12 \
+            -alias ${src_name} \
+            -keystore ${dst_file} \
             -keypass ${AH_PASS_CERT} \
             -storepass ${AH_PASS_CERT} \
             -storetype PKCS12 \
             -noprompt
 
-        chown :arrowhead ${1}/truststore.p12
-        chmod 640 ${1}/truststore.p12
+        chown :arrowhead ${dst_file}
+        chmod 640 ${dst_file}
     fi
-}
-
-ah_db_user () {
-    if [ $(mysql -u root -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'arrowhead')") != 1 ]; then
-        mysql -e "CREATE USER arrowhead@localhost IDENTIFIED BY '${AH_PASS_DB}';"
-        mysql -e "GRANT ALL PRIVILEGES ON arrowhead.* TO arrowhead@'localhost';"
-        mysql -e "FLUSH PRIVILEGES;"
-    fi
-}
-
-ah_db_logs () {
-    mysql -u root < /usr/share/arrowhead/db/create_logs_tbl_empty.sql
 }
 
 ah_db_arrowhead_cloud () {
@@ -114,13 +188,29 @@ ah_db_hibernate_sequence () {
     mysql -u root < /usr/share/arrowhead/db/create_hibernate_sequence_tbl_empty.sql
 }
 
+ah_db_logs () {
+    mysql -u root < /usr/share/arrowhead/db/create_logs_tbl_empty.sql
+}
+
 ah_db_own_cloud () {
     mysql -u root < /usr/share/arrowhead/db/create_own_cloud_tbl_empty.sql
 }
 
+ah_db_user () {
+    if [ $(mysql -u root -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'arrowhead')") != 1 ]; then
+        mysql -e "CREATE USER arrowhead@localhost IDENTIFIED BY '${AH_PASS_DB}';"
+        mysql -e "GRANT ALL PRIVILEGES ON arrowhead.* TO arrowhead@'localhost';"
+        mysql -e "FLUSH PRIVILEGES;"
+    fi
+}
+
 ah_log4j_conf () {
-    if [ ! -f "/etc/arrowhead/${1}/log4j.properties" ]; then
-        /bin/cat <<EOF >/etc/arrowhead/${1}/log4j.properties
+    system_name=${1}
+
+    file="${AH_SYSTEMS_DIR}/${system_name}/log4j.properties"
+    
+    if [ ! -f "${file}" ]; then
+        /bin/cat <<EOF >${file}
 # Define the root logger with appender file
 log4j.rootLogger=INFO, DB, FILE
 
@@ -145,7 +235,7 @@ log4j.logger.org.hibernate=fatal
 # Define the file appender
 log4j.appender.FILE=org.apache.log4j.FileAppender
 # Set the name of the file
-log4j.appender.FILE.File=/var/log/arrowhead/${1}.log
+log4j.appender.FILE.File=/var/log/arrowhead/${system_name}.log
 # Set the immediate flush to true (default)
 log4j.appender.FILE.ImmediateFlush=true
 # Set the threshold to debug mode
@@ -156,36 +246,7 @@ log4j.appender.FILE.Append=false
 log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
 log4j.appender.FILE.layout.conversionPattern=%d{yyyy-MM-dd HH:mm:ss}, %C, %p, %m%n
 EOF
-        chown root:arrowhead /etc/arrowhead/${1}/log4j.properties
-        chmod 640 /etc/arrowhead/${1}/log4j.properties
+        chown root:arrowhead ${file}
+        chmod 640 ${file}
     fi
 }
-
-ah_cert_export () {
-    if [ ! -f "${3}/${2}.crt" ]; then
-        keytool -exportcert \
-            -rfc \
-            -alias ${2} \
-            -storepass ${AH_PASS_CERT} \
-            -keystore ${1}/${2}.p12 \
-        | openssl x509 \
-            -out ${3}/${2}.crt
-
-        chown :arrowhead ${3}/${2}.crt
-        chmod 640 ${3}/${2}.crt
-    fi
-}
-
-ah_cert_import () {
-    keytool -import \
-        -trustcacerts \
-        -file ${1}/${2}.crt \
-        -alias ${2} \
-        -keystore ${3}/${4}.p12 \
-        -keypass ${AH_PASS_CERT} \
-        -storepass ${AH_PASS_CERT} \
-        -storetype PKCS12 \
-        -noprompt
-}
-
-

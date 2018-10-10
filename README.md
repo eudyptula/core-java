@@ -32,13 +32,27 @@ Check Java version:
 
 `java -version`
 
-### 4. Build Arrowhead Debian Packages
+### 4a. Download an Arrowhead Debian Packages release
 
-Do this on your local Arrowhead development machine.
+Check the GitHub releases site <https://github.com/arrowhead-f/core-java/releases> for the latest release and download
+it: 
+
+`wget -c https://github.com/arrowhead-f/core-java/releases/download/4.0-debian/debian_packages.zip`
+
+Unpack it:
+
+```bash
+unzip debian_packages.zip
+cd debian_packages/
+```
+
+### 4b. Build Arrowhead Debian Packages
+
+To build the Debian packages yourself, start by cloning the repository:
 
 `git clone https://github.com/arrowhead-f/core-java.git -b feature/debian`
 
-Build:
+Build them with:
 
 `mvn package`
 
@@ -63,13 +77,48 @@ Currently they're not added to the default runlevel, so they will not restart on
 
 ### 6. Hints
 
+#### Add a new application system
+
+You can use the script `ah_gen_system` to generate certificate, a configuration template, and add the necessary
+database entries for a new application system: 
+
+```sudo ah_gen_system SYSTEM_NAME HOST [SERVICE]```
+
+If there is no service parameter only a consumer system will be generated, specify a service to generate a full provider
+system. Examples:
+
+```sudo ah_gen_system client1 127.0.0.1```
+
+```sudo ah_gen_system SecureTemperatureSensor 127.0.0.1 IndoorTemperature```
+
+#### Add a new cloud to a detached installation
+
+Run the script `ah_gen_cloud` to generate a new certificate and update the databases on the existing cloud: 
+
+```sudo ah_gen_cloud CLOUD_NAME HOST```
+
+E.g. (the IP address should be that of the new cloud):
+
+```sudo ah_gen_cloud testcloud2 127.0.0.1```
+
+Use authorized mode to install the new cloud with the cloud and master certificate from the `/etc/arrowhead` folder.
+Afterwards, call `ah_add_neighbor` on the new cloud (`ah_gen_cloud` will output the correct parameters).
+
+#### Add a new neighbor to a cloud
+
+Use the script `ah_add_neighbor` to add a neighboring cloud:
+
+```ah_add_neighbor OPERATOR CLOUD_NAME HOST AUTH_INFO```
+
+#### Other hints
+
 Log files (log4j) are available in: `/var/log/arrowhead/*`
 
 Output from systems are available with: `journalctl -u arrowhead-*.service`
 
 Restart services: `sudo systemctl restart arrowhead-\*.service`
 
-Configuration and certificates are in: `/etc/arrowhead`
+Configuration and certificates are found under: `/etc/arrowhead`
 
 Generated passwords can be found in `/var/cache/debconf/passwords.dat`
 
@@ -83,15 +132,9 @@ show tables;
 `apt purge` can be used to remove configuration files, database, log files, etc. Use `sudo apt purge arrowhead-\*` to
 remove everything arrowhead related.
 
-If you need to generate a new certificate for an application system, signed with the cloud certificate:
-`sudo ahcert PATH SYSTEM_NAME`, e.g. `sudo ahcert ~/ SecureTemperatureSensor`.
-
-For the provider and consumer example in the client skeletons, the script `sudo ah_quickstart_gen` can be used to
+For the provider and consumer example in the client skeletons, the script `sudo ah_gen_quickstart` can be used to
 generate the necessary certificates and database entries. It will also output the certificate/keystore password. Note,
 this script should only be used for test clouds on a clean installation.
-
-For clouds installed in detached mode, a certificate for a second cloud can be generated with
-`sudo ahcert_cloud ./ CLOUD_NAME`, e.g. `sudo ahcert_cloud ./ testcloud2`.
 
 To switch to insecure mode of all core services, remove `-tls`in the service files and restart them, e.g.:
 

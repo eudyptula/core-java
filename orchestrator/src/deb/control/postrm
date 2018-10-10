@@ -5,8 +5,9 @@
 
 set -e
 
-SERVICE_NAME="orchestrator"
-PKG_NAME="arrowhead-orchestrator"
+. /usr/share/debconf/confmodule
+
+SYSTEM_NAME="orchestrator"
 
 # summary of how this script can be called:
 #        * <postrm> `remove'
@@ -24,14 +25,18 @@ PKG_NAME="arrowhead-orchestrator"
 
 case "$1" in
     purge)
+        AH_CONF_DIR="/etc/arrowhead"
+        AH_SYSTEMS_DIR="${AH_CONF_DIR}/systems"
+        SYSTEM_DIR="${AH_SYSTEMS_DIR}/${SYSTEM_NAME}"
+
         rm -f \
-            /var/log/arrowhead/${SERVICE_NAME}.log \
-            /etc/arrowhead/${SERVICE_NAME}/app.properties \
-            /etc/arrowhead/${SERVICE_NAME}/log4j.properties \
-            /etc/arrowhead/${SERVICE_NAME}/${SERVICE_NAME}.p12
-        rmdir /etc/arrowhead/${SERVICE_NAME} 2>/dev/null || true
+            /var/log/arrowhead/${SYSTEM_NAME}.log \
+            ${SYSTEM_DIR}/app.properties \
+            ${SYSTEM_DIR}/log4j.properties \
+            ${SYSTEM_DIR}/${SYSTEM_NAME}.p12
+        rmdir ${SYSTEM_DIR} 2>/dev/null || true
         rmdir /var/log/arrowhead 2>/dev/null || true
-        echo PURGE | debconf-communicate ${PKG_NAME}
+        db_purge
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
