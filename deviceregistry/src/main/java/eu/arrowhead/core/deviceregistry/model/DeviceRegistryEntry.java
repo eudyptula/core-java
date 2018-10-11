@@ -10,6 +10,7 @@ package eu.arrowhead.core.deviceregistry.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import eu.arrowhead.common.json.constraint.LDTInFuture;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,7 +23,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
-import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -51,7 +51,7 @@ public class DeviceRegistryEntry {
 	private String macAddress;
 
 	@Column(name = "end_of_validity")
-	@FutureOrPresent(message = "End of validity date cannot be in the past")
+  @LDTInFuture(message = "End of validity date cannot be in the past")
 	private LocalDateTime endOfValidity;
 
 	public DeviceRegistryEntry() {
@@ -61,7 +61,7 @@ public class DeviceRegistryEntry {
 	public DeviceRegistryEntry(final Long id, 
 			@Valid @NotNull(message = "Provided ArrowheadDevice cannot be null") final ArrowheadDevice providedDevice,
 	    @Size(max = 255, message = "macAddress must be 255 character at max") final String macAddress,
-	    @FutureOrPresent(message = "End of validity date cannot be in the past") final LocalDateTime endOfValidity) {
+	    @LDTInFuture(message = "End of validity date cannot be in the past") final LocalDateTime endOfValidity) {
 		super();
 		this.id = id;
 		this.providedDevice = providedDevice;
