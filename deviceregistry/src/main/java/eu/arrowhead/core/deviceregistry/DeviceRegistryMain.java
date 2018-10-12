@@ -18,7 +18,7 @@ public class DeviceRegistryMain extends ArrowheadMain {
     		"eu.arrowhead.common.exception", 
     		"eu.arrowhead.common.json", 
     		"eu.arrowhead.common.filter", 
-				"eu.arrowhead.core.systemregistry"};
+				"eu.arrowhead.core.deviceregistry"};
     init(CoreSystem.DEVICE_REGISTRY, args, null, packages);
 
 
