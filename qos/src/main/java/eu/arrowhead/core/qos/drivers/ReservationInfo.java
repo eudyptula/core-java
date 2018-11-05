@@ -7,8 +7,8 @@
 
 package eu.arrowhead.core.qos.drivers;
 
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.util.HashMap;
 import java.util.Map;
 

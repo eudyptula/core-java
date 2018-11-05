@@ -8,9 +8,9 @@
 package eu.arrowhead.core.serviceregistry.filter;
 
 import eu.arrowhead.common.Utility;
-import eu.arrowhead.common.database.ServiceRegistryEntry;
 import eu.arrowhead.common.exception.AuthException;
 import eu.arrowhead.common.filter.AccessControlFilter;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import eu.arrowhead.common.misc.SecurityUtils;
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;

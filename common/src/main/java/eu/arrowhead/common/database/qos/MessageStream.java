@@ -7,8 +7,8 @@
 
 package eu.arrowhead.common.database.qos;
 
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.CascadeType;

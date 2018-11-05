@@ -5,9 +5,11 @@
  * national funding authorities from involved countries.
  */
 
-package eu.arrowhead.common.database;
+package eu.arrowhead.common.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
+import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.json.constraint.LDTInFuture;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -66,6 +68,7 @@ public class ServiceRegistryEntry {
   private Integer version = 1;
 
   //Takes the providedService metadata map
+  @JsonIgnore
   private String metadata;
 
   public ServiceRegistryEntry() {

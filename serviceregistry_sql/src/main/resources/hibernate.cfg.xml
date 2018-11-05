@@ -31,7 +31,7 @@
     <property name="hikari.registerMbeans">true</property>
 
     <mapping class="eu.arrowhead.common.database.ArrowheadSystem"/>
-    <mapping class="eu.arrowhead.common.database.ArrowheadService"/>
-    <mapping class="eu.arrowhead.common.database.ServiceRegistryEntry"/>
+    <mapping class="eu.arrowhead.common.messages.ArrowheadService"/>
+    <mapping class="eu.arrowhead.common.messages.ServiceRegistryEntry"/>
   </session-factory>
 </hibernate-configuration>

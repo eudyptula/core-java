@@ -8,8 +8,8 @@
 package eu.arrowhead.common.web;
 
 import eu.arrowhead.common.DatabaseManager;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.exception.DataNotFoundException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

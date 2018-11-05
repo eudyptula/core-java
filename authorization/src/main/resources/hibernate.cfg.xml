@@ -32,7 +32,7 @@
 
     <mapping class="eu.arrowhead.common.database.ArrowheadCloud"/>
     <mapping class="eu.arrowhead.common.database.ArrowheadSystem"/>
-    <mapping class="eu.arrowhead.common.database.ArrowheadService"/>
+    <mapping class="eu.arrowhead.common.messages.ArrowheadService"/>
     <mapping class="eu.arrowhead.common.database.InterCloudAuthorization"/>
     <mapping class="eu.arrowhead.common.database.IntraCloudAuthorization"/>
     <mapping class="eu.arrowhead.common.database.OwnCloud"/>

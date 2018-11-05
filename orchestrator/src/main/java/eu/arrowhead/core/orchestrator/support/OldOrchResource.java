@@ -7,11 +7,11 @@
 
 package eu.arrowhead.core.orchestrator.support;
 
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.json.support.OrchestrationResponseSupport;
 import eu.arrowhead.common.json.support.PreferredProviderSupport;
 import eu.arrowhead.common.json.support.ServiceRequestFormSupport;
+import eu.arrowhead.common.messages.ArrowheadService;
 import eu.arrowhead.common.messages.OrchestrationResponse;
 import eu.arrowhead.common.messages.PreferredProvider;
 import eu.arrowhead.common.messages.ServiceRequestForm;

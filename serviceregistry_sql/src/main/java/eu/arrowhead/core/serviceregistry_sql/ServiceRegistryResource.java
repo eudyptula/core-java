@@ -8,12 +8,12 @@
 package eu.arrowhead.core.serviceregistry_sql;
 
 import eu.arrowhead.common.DatabaseManager;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
-import eu.arrowhead.common.database.ServiceRegistryEntry;
 import eu.arrowhead.common.exception.DuplicateEntryException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import eu.arrowhead.common.messages.ServiceQueryForm;
 import eu.arrowhead.common.messages.ServiceQueryResult;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import java.util.HashMap;
 import java.util.List;
 import javax.validation.Valid;

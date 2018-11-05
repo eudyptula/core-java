@@ -8,11 +8,11 @@
 package eu.arrowhead.core.orchestrator.api;
 
 import eu.arrowhead.common.DatabaseManager;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.database.OrchestrationStore;
 import eu.arrowhead.common.exception.ArrowheadException;
 import eu.arrowhead.common.exception.DataNotFoundException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import eu.arrowhead.common.misc.SecurityUtils;
 import java.util.Collections;
 import java.util.HashMap;

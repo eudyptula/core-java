@@ -23,7 +23,7 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class JacksonJsonProviderAtRest extends JacksonJaxbJsonProvider {
+public class JacksonObjectMapperProvider extends JacksonJaxbJsonProvider {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -40,7 +40,7 @@ public class JacksonJsonProviderAtRest extends JacksonJaxbJsonProvider {
     mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
   }
 
-  public JacksonJsonProviderAtRest() {
+  public JacksonObjectMapperProvider() {
     super();
     setMapper(mapper);
   }

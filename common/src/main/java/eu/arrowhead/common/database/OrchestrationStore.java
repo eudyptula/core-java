@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.MoreObjects;
 import eu.arrowhead.common.exception.BadPayloadException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;

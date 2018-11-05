@@ -8,8 +8,8 @@
 package eu.arrowhead.core.gateway.model;
 
 import eu.arrowhead.common.database.ArrowheadCloud;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.time.LocalDateTime;
 
 public class ActiveSession {

@@ -7,10 +7,10 @@
 
 package eu.arrowhead.core.serviceregistry_sql.support;
 
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
-import eu.arrowhead.common.database.ServiceRegistryEntry;
 import eu.arrowhead.common.json.support.ServiceRegistryEntrySupport;
+import eu.arrowhead.common.messages.ArrowheadService;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import eu.arrowhead.core.serviceregistry_sql.ServiceRegistryResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

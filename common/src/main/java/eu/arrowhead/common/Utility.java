@@ -9,11 +9,9 @@ package eu.arrowhead.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.arrowhead.common.database.ArrowheadCloud;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.database.NeighborCloud;
 import eu.arrowhead.common.database.OwnCloud;
-import eu.arrowhead.common.database.ServiceRegistryEntry;
 import eu.arrowhead.common.exception.ArrowheadException;
 import eu.arrowhead.common.exception.AuthException;
 import eu.arrowhead.common.exception.BadPayloadException;
@@ -22,9 +20,11 @@ import eu.arrowhead.common.exception.DnsException;
 import eu.arrowhead.common.exception.DuplicateEntryException;
 import eu.arrowhead.common.exception.ErrorMessage;
 import eu.arrowhead.common.exception.UnavailableServerException;
-import eu.arrowhead.common.json.JacksonJsonProviderAtRest;
+import eu.arrowhead.common.json.JacksonObjectMapperProvider;
+import eu.arrowhead.common.messages.ArrowheadService;
 import eu.arrowhead.common.messages.ServiceQueryForm;
 import eu.arrowhead.common.messages.ServiceQueryResult;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import eu.arrowhead.common.misc.CoreSystemService;
 import eu.arrowhead.common.misc.TypeSafeProperties;
 import java.io.BufferedReader;
@@ -78,7 +78,7 @@ public final class Utility {
   private static SSLContext sslContext;
   private static String SR_QUERY_URI;
 
-  private static final ObjectMapper mapper = JacksonJsonProviderAtRest.getMapper();
+  private static final ObjectMapper mapper = JacksonObjectMapperProvider.getMapper();
   private static final Logger log = Logger.getLogger(Utility.class.getName());
   private static final HostnameVerifier allHostsValid = (hostname, session) -> {
     // Decide whether to allow the connection...
@@ -105,7 +105,7 @@ public final class Utility {
     } else {
       client = ClientBuilder.newClient(configuration);
     }
-    client.register(JacksonJsonProviderAtRest.class);
+    client.register(JacksonObjectMapperProvider.class);
     return client;
   }
 

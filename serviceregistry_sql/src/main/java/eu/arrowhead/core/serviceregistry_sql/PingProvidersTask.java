@@ -8,7 +8,7 @@
 package eu.arrowhead.core.serviceregistry_sql;
 
 
-import eu.arrowhead.common.database.ServiceRegistryEntry;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.TimerTask;

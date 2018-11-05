@@ -7,12 +7,12 @@
 
 package eu.arrowhead.common;
 
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
-import eu.arrowhead.common.database.ServiceRegistryEntry;
 import eu.arrowhead.common.exception.ArrowheadException;
 import eu.arrowhead.common.exception.AuthException;
 import eu.arrowhead.common.exception.ExceptionType;
+import eu.arrowhead.common.messages.ArrowheadService;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import eu.arrowhead.common.misc.CoreSystem;
 import eu.arrowhead.common.misc.CoreSystemService;
 import eu.arrowhead.common.misc.SecurityUtils;

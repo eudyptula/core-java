@@ -7,10 +7,10 @@
 
 package eu.arrowhead.core.qos.drivers;
 
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.exception.DriverNotFoundException;
 import eu.arrowhead.common.exception.ReservationException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;

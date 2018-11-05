@@ -8,6 +8,7 @@
 package eu.arrowhead.common.database;
 
 import com.google.common.base.MoreObjects;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

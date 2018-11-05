@@ -7,7 +7,7 @@
 
 package eu.arrowhead.common.json.support;
 
-import eu.arrowhead.common.database.ArrowheadService;
+import eu.arrowhead.common.messages.ArrowheadService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

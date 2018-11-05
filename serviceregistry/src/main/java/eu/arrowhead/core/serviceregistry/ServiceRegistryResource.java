@@ -7,11 +7,11 @@
 
 package eu.arrowhead.core.serviceregistry;
 
-import eu.arrowhead.common.database.ArrowheadService;
-import eu.arrowhead.common.database.ServiceRegistryEntry;
 import eu.arrowhead.common.exception.BadPayloadException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import eu.arrowhead.common.messages.ServiceQueryForm;
 import eu.arrowhead.common.messages.ServiceQueryResult;
+import eu.arrowhead.common.messages.ServiceRegistryEntry;
 import java.util.Collections;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;

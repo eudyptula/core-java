@@ -8,7 +8,6 @@
 package eu.arrowhead.common.messages;
 
 import eu.arrowhead.common.database.ArrowheadCloud;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.exception.BadPayloadException;
 import eu.arrowhead.common.json.constraint.SENotBlank;

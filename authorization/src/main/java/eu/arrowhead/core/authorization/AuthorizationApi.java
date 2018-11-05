@@ -9,11 +9,11 @@ package eu.arrowhead.core.authorization;
 
 import eu.arrowhead.common.DatabaseManager;
 import eu.arrowhead.common.database.ArrowheadCloud;
-import eu.arrowhead.common.database.ArrowheadService;
 import eu.arrowhead.common.database.ArrowheadSystem;
 import eu.arrowhead.common.database.InterCloudAuthorization;
 import eu.arrowhead.common.database.IntraCloudAuthorization;
 import eu.arrowhead.common.exception.DataNotFoundException;
+import eu.arrowhead.common.messages.ArrowheadService;
 import eu.arrowhead.common.messages.InterCloudAuthEntry;
 import eu.arrowhead.common.messages.IntraCloudAuthEntry;
 import java.util.ArrayList;

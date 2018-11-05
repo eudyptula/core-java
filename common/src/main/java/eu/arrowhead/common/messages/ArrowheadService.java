@@ -5,7 +5,7 @@
  * national funding authorities from involved countries.
  */
 
-package eu.arrowhead.common.database;
+package eu.arrowhead.common.messages;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -51,6 +51,7 @@ public class ArrowheadService {
   @Column(name = "service_definition")
   private String serviceDefinition;
 
+  @Transient
   @Size(max = 100, message = "Service can only have 100 interfaces at max")
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "arrowhead_service_interfaces", joinColumns = @JoinColumn(name = "arrowhead_service_id"))
